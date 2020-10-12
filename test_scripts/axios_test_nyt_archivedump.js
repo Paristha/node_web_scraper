@@ -41,10 +41,11 @@ axios
 		});
 		articleBody = articleBody.replace(/(([^\w\s]|_)*)(\s+)(([^\w\s]|_)*)/g, " ").replace(/\s+/g, " ");
 //		var words = articleBody.split(' ');
-		fs.writeFile('worddump.txt', articleBody, function (err) {
-			if (err) return console.log(err);
-			console.log('success');
-		});
+//		fs.writeFile('worddump.txt', articleBody, function (err) {
+//			if (err) return console.log(err);
+//			console.log('success');
+//		});
+		console.log(articleBody);
 	})
 	.catch((error) => {
 		console.error(error)

@@ -1,6 +1,14 @@
 {
   "name": "node_web_scraper",
   "version": "1.0.0",
+  "dependencies": {
+    "aws-sdk": "*",
+    "axios": "*",
+    "cheerio": "*",
+    "mysql": "*",
+    "pos": "*",
+    "uuid": "*"
+  },
   "description": "A web-scraping program written in node.js",
   "main": "index.js",
   "scripts": {

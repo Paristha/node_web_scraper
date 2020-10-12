@@ -39,21 +39,9 @@ axios
 		    articleBody += $(this).text() + ' ';// for testing do text() 
 		    console.log('here');
 		});
-		var words = new pos.Lexer().lex(articleBody);
-		var tagger = new pos.Tagger();
-		words = words.filter(function (word) {
-			word = word.replace(/[^\w\s]|_/g, "").replace(/\s+/g, "");
-			return word != "";
-		});
-		var taggedWords = tagger.tag(words);
-		var taggedArticleBody = '';
-		for (i in taggedWords) {
-		    var taggedWord = taggedWords[i];
-		    var word = taggedWord[0];
-		    var tag = taggedWord[1];
-		    taggedArticleBody += word + " /" + tag + ' ';
-		}
-		fs.writeFile('tagdump.txt', taggedArticleBody, function (err) {
+		articleBody = articleBody.replace(/(([^\w\s]|_)*)(\s+)(([^\w\s]|_)*)/g, " ").replace(/\s+/g, " ");
+//		var words = articleBody.split(' ');
+		fs.writeFile('worddump.txt', articleBody, function (err) {
 			if (err) return console.log(err);
 			console.log('success');
 		});

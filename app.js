@@ -1,11 +1,11 @@
 const cheerio = require('cheerio'),
 	fs = require('fs').promises,
-	http = require('http'),
-	spawn = require("child_process").spawn;
+	http = require('http');
+//	spawn = require("child_process").spawn;
 
 var port = process.env.PORT || 3000;
 
-var htmlPromise = fs.readFile('index.html');
+var html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
 
 var log = function(entry) {
 	fs.appendFileSync('/tmp/sample-app.log', new Date().toISOString() + ' - ' + entry + '\n');
@@ -37,9 +37,11 @@ var server = http.createServer(function (req, res) {
 		});
 	} else {
 		res.writeHead(200);
-		var html = htmlPromise.then(renderHTML, renderErrorPage);
-		res.write(html);
-		res.end();
+		html.then( function (data) {
+			res.write(data, function (error) {
+				res.end();
+			});
+		});
 	}
 });
 
@@ -47,7 +49,7 @@ function renderHTML(data) {
 	try {
 		var $ = cheerio.load(data);
 		$('.textColumn').append('<p>This is podracing!</p>');
-		return getHTML($.root().text());
+		return $.root().html();
 	} catch (error) {
 		callbackFailure(error);
 	}
@@ -73,7 +75,7 @@ console.log('Server running at http://127.0.0.1:' + port + '/');
 
 var mysql = require('mysql');
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
 	host	 : process.env.RDS_HOSTNAME,
 	user	 : process.env.RDS_USERNAME,
 	password : process.env.RDS_PASSWORD,

@@ -1,6 +1,7 @@
 const cheerio = require('cheerio'),
 	fs = require('fs').promises,
 	http = require('http');
+	mysql = require('mysql');
 //	spawn = require("child_process").spawn;
 
 var port = process.env.PORT || 3000;
@@ -73,9 +74,7 @@ server.listen(port);
 // Put a friendly message on the terminal
 console.log('Server running at http://127.0.0.1:' + port + '/');
 
-var mysql = require('mysql');
-
-const connection = mysql.createConnection({
+var connection = mysql.createConnection({
 	host	 : process.env.RDS_HOSTNAME,
 	user	 : process.env.RDS_USERNAME,
 	password : process.env.RDS_PASSWORD,
@@ -87,8 +86,25 @@ connection.connect(function(err) {
 		console.error('Database connection failed: ' + err.stack);
 		return; 
 		}
-	console.log('Connected to database.'); 
-	}
-);
+	console.log('Connected to mysql server.');
 
-connection.end();
+	var createDB = 'CREATE DATABASE nyt_webscraper_db';
+	connection.query(createDB, function (err, result) {
+		if (err) console.log('Database already created');
+		else console.log('Database created');
+	});
+	
+	var useDB = 'USE nyt_webscraper_db';
+	connection.query(useDB, function (err, result) {
+		if (err) throw err;
+		console.log('Database selected');
+	});
+	
+	var createTable = 'CREATE TABLE word_count (word VARCHAR(255), count INT(11))';
+	connection.query(createTable, function (err, result) {
+		if (err) console.log('Table already created');
+		else console.log('Table created');
+	});
+	
+	connection.end();
+});

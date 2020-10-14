@@ -15,38 +15,29 @@ axios
 .get(nytURL.href)
 .then((response) => {
 	getArchiveArticleURLs(response.data.responce.docs, process.stdout);
-	articleURL = new URL(response.data.response.docs[2].web_url);
-
-	axios.get(articleURL.href)
-	.then((response) => {
-		const $ = cheerio.load(response.data);
-		var articleBody = '';
-		$('[name=articleBody] p').each(function(i, elm) {
-			articleBody += $(this).text() + ' ';
-		});
-		articleBody = articleBody.replace(/(([^\w\s]|_)*)(\s+)(([^\w\s]|_)*)/g, " ").replace(/\s+/g, " ");
-		console.log(articleBody);
-	})
-	.catch((error) => {
-		console.error(error)
-	});
-})
-.catch((error) => {
-	console.error(error)
-});
+	process.stdout.end('');
+}).catch((error) => callbackFailure);
 
 function getArchiveArticleURLs(docs, writer) {
 	for (i in docs) {
-		getArticleBody(docs[i].web_url)
+		getArticleBody(docs[i].web_url).then( articleBody => {
+			if (!writer.write(articleBody)) {
+				stream.once('drain', () => {});
+			}
+		});
 	}
 }
 
 async function getArticleBody(URL) {
 	axios.get(URL).then( (response) => {
-		
-	}).catch((error) => {
-		callbackFailure(error);
-	})
+		const $ = cheerio.load(response.data);
+		var articleBody = '';
+		$('[name=articleBody] p').each(function(i, elm) {
+			articleBody += $(this).text() + ' '; // Article text is split between <p> elements, this adds them together
+		});
+		articleBody = articleBody.replace(/(([^\w\s]|_)*)(\s+)(([^\w\s]|_)*)/g, " ").replace(/\s+/g, " ").trim(); //strips punctuation
+		return articleBody
+	}).catch((error) => callbackFailure);
 }
 
 function callbackFailure(error) {

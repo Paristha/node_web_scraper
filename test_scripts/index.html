@@ -77,6 +77,11 @@
       <h1>Congratulations</h1>
       <p>Your first AWS Elastic Beanstalk Node.js application is now running on your own dedicated environment in the AWS Cloud</p>
       <p>This environment is launched with Elastic Beanstalk Node.js Platform</p>
+      <p id="buttonOutput"></p>
+      <button type="button" onclick="helloWorld()">Click</button>
+      <script>
+      function helloWorld() { document.getElementById("buttonOutput").innerHTML = "Hello JavaScript!"; }
+      </script>
     </div>
     <div class="linksColumn">
       <h2>What's Next?</h2>

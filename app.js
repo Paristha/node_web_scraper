@@ -13,9 +13,9 @@ var log = function(entry) {
 };
 
 
-//const childProcess = spawn('node', ["test_scripts/axios_test_nyt_archivedump.js"]);
+//const childProcess = spawn('node', ['nytArchiveGET.js', '2019', '1']);
 //childProcess.stdout.on('data', (data) => {
-//	// Do something with the data returned from script
+//	var words = data.split(' ');
 //});
 
 var server = http.createServer(function (req, res) {
@@ -74,14 +74,14 @@ server.listen(port);
 // Put a friendly message on the terminal
 console.log('Server running at http://127.0.0.1:' + port + '/');
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
 	host	 : process.env.RDS_HOSTNAME,
 	user	 : process.env.RDS_USERNAME,
 	password : process.env.RDS_PASSWORD,
 	port	 : process.env.RDS_PORT
 });
 
-connection.connect(function(err) {
+connection.connect(function(err) { //initialize db
 	if (err) {
 		console.error('Database connection failed: ' + err.stack);
 		return; 
@@ -105,6 +105,4 @@ connection.connect(function(err) {
 		if (err) console.log('Table already created');
 		else console.log('Table created');
 	});
-	
-	connection.end();
 });

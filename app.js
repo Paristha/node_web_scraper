@@ -1,21 +1,65 @@
-const cheerio = require('cheerio'),
-	app = require('express')(),
+const app = require('express')(),
+	chart = require('chart.js'),
+	cheerio = require('cheerio'),
 	fs = require('fs').promises,
+	ha = require('hasharray'),
 	http = require('http'),
-	mysql = require('mysql');
-//	spawn = require("child_process").spawn;
+	connection = require('mysql').createConnection({
+		host	 : process.env.RDS_HOSTNAME,
+		user	 : process.env.RDS_USERNAME,
+		password : process.env.RDS_PASSWORD,
+		port	 : process.env.RDS_PORT
+	}),
+	spawn = require('child_process').spawn;
 
-var port = process.env.PORT || 3000;
-
-var html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
-
-var log = function(entry) {
+const log = function(entry) {
 	try {
 		fs.appendFile('tmp/nyt_webscraper_sqlinput.log', new Date().toISOString() + ' - ' + entry + '\n');
 	} catch (error) {
 		console.log(error);
 	}
 };
+
+const html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
+
+const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
+	connection.connect(function(err) { //initialize db
+		if (err) {
+			log('Database connection failed: ' + err.stack);
+			reject(err); 
+			}
+		log('Connected to mysql server.');
+
+		var createDB = 'CREATE DATABASE IF NOT EXISTS nyt_webscraper_db';
+		connection.query(createDB, function (err, result) {
+			if (err) reject(err);
+			log('Database created or exists');
+		});
+		
+		var useDB = 'USE nyt_webscraper_db';
+		connection.query(useDB, function (err, result) {
+			if (err) reject(err);
+			log('Database selected');
+		});
+		
+		var createTable = 'CREATE TABLE IF NOT EXISTS word_count (word VARCHAR(255) PRIMARY KEY, count INT(11))';
+		connection.query(createTable, function (err, result) {
+			if (err) reject(err);
+			log('Table created or exists');
+		});
+		
+		resolve(function(params) { //return function used to insert into table
+			let query = 'INSERT INTO word_count (word, count) VALUES ? ON DUPLICATE KEY UPDATE';
+			connection.query(query, [params], (err, result) => {
+				if (err) log(err);
+				else log(result);
+			});
+		});
+		
+	});
+});
+
+var port = process.env.PORT || 3000;
 
 app.get('/', function (req, res) {
 	html.then( function (data) {
@@ -24,41 +68,15 @@ app.get('/', function (req, res) {
 		});
 	});
 
-var server = http.createServer(app).listen(port);
+app.get('/nytArchive/:year/:month', function (req, res) {
+	chartHTML(req.params.year, req.params.month).then( function (data) {
+		res.send(data);
+		res.end();
+		});
+	});
 
-
-//const childProcess = spawn('node', ['nytArchiveGET.js', '2019', '1']);
-//childProcess.stdout.on('data', (data) => {
-//	var words = data.split(' ');
-//});
-
-//var server = http.createServer(function (req, res) {
-//	if (req.method === 'POST') {
-//		var body = '';
-//
-//		req.on('data', function(chunk) {
-//			body += chunk;
-//		});
-//
-//		req.on('end', function() {
-//			if (req.url === '/') {
-//				log('Received message: ' + body);
-//			} else if (req.url = '/scheduled') {
-//				log('Received task ' + req.headers['x-aws-sqsd-taskname'] + ' scheduled at ' + req.headers['x-aws-sqsd-scheduled-at']);
-//			}
-//
-//			res.writeHead(200, 'OK', {'Content-Type': 'text/plain'});
-//			res.end();
-//		});
-//	} else {
-//		res.writeHead(200);
-//		html.then( function (data) {
-//			res.write(data, function (error) {
-//				res.end();
-//			});
-//		});
-//	}
-//});
+var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
+log('Server running at http://127.0.0.1:' + port + '/');
 
 function renderHTML(data) {
 	try {
@@ -68,6 +86,40 @@ function renderHTML(data) {
 	} catch (error) {
 		callbackFailure(error);
 	}
+}
+
+async function chartHTML(year, month) {
+	try{
+		var childProcess = spawn('node', ['nytArchiveGET.js', year, month]);
+		var insertOrUpdateRow = await (insertOrUpdateRowPromise);
+		var data = await (fs.readFile('chart.html'));
+		var $ = cheerio.load(data);
+	} catch(err) {
+		log(error);
+		throw error;
+	}
+	var outputStream = childProcess.stdout;
+	outputStream.on('data', (data) => {
+		let words = data.split(' ');
+		let wordcount = {};
+		words.forEach(function(word) { wordcount[word] = (wordcount[word] || 0) + 1 }); // create word:#ofTimesItIsInArray set
+		let params = Object.entries(wordcount);
+		insertOrUpdateRow(params);
+	});
+	outputStream.once('finish', () => {
+		connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 10', (err, result) => {
+			if (err) log(err);
+			else {
+				let rows = {};
+				result.forEach(function(row) { rows[row.word] = row.count; });
+				let words = Object.keys(rows);
+				let counts = Objects.values(rows);
+				$('#myChart').attr('data-words', JSON.stringify(words));
+				$('#myChart').attr('data-counts', JSON.stringify(counts));
+				return $.root().html();
+			}
+		});
+	});
 }
 
 function renderErrorPage(error) {
@@ -82,42 +134,3 @@ function callbackFailure(error) {
 	log(error);
 	throw error;
 }
-
-// Listen on port 3000, IP defaults to 127.0.0.1
-//server.listen(port);
-
-// Put a friendly message on the terminal
-log('Server running at http://127.0.0.1:' + port + '/');
-
-const connection = mysql.createConnection({
-	host	 : process.env.RDS_HOSTNAME,
-	user	 : process.env.RDS_USERNAME,
-	password : process.env.RDS_PASSWORD,
-	port	 : process.env.RDS_PORT
-});
-
-connection.connect(function(err) { //initialize db
-	if (err) {
-		log('Database connection failed: ' + err.stack);
-		return; 
-		}
-	log('Connected to mysql server.');
-
-	var createDB = 'CREATE DATABASE nyt_webscraper_db';
-	connection.query(createDB, function (err, result) {
-		if (err) log('Database already created');
-		else log('Database created');
-	});
-	
-	var useDB = 'USE nyt_webscraper_db';
-	connection.query(useDB, function (err, result) {
-		if (err) throw err;
-		log('Database selected');
-	});
-	
-	var createTable = 'CREATE TABLE word_count (word VARCHAR(255), count INT(11))';
-	connection.query(createTable, function (err, result) {
-		if (err) log('Table already created');
-		else log('Table created');
-	});
-});

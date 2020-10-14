@@ -22,7 +22,7 @@ function getArchiveArticleURLs(docs, writer) {
 	for (i in docs) {
 		getArticleBody(docs[i].web_url).then( articleBody => {
 			if (!writer.write(articleBody)) {
-				stream.once('drain', () => {});
+				writer.once('drain', () => {});
 			}
 		});
 	}

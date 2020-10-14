@@ -2,16 +2,15 @@
   "name": "node_web_scraper_deployment_version",
   "version": "1.0.0",
   "dependencies": {
-    "aws-sdk": "*",
-    "axios": "*",
-    "cheerio": "*",
-    "mysql": "*",
-    "uuid": "*"
+    "axios": "latest",
+    "cheerio": "latest",
+    "express": "latest",
+    "mysql": "latest"
   },
   "description": "A web-scraping program written in node.js",
   "main": "app.js",
   "scripts": {
-	  "start": "node app.js"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

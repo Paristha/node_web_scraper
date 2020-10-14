@@ -1,6 +1,7 @@
 const cheerio = require('cheerio'),
+	app = require('express')(),
 	fs = require('fs').promises,
-	http = require('http');
+	http = require('http'),
 	mysql = require('mysql');
 //	spawn = require("child_process").spawn;
 
@@ -9,8 +10,21 @@ var port = process.env.PORT || 3000;
 var html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
 
 var log = function(entry) {
-	fs.appendFileSync('/tmp/sample-app.log', new Date().toISOString() + ' - ' + entry + '\n');
+	try {
+		fs.appendFile('tmp/nyt_webscraper_sqlinput.log', new Date().toISOString() + ' - ' + entry + '\n');
+	} catch (error) {
+		console.log(error);
+	}
 };
+
+app.get('/', function (req, res) {
+	html.then( function (data) {
+		res.send(data);
+		res.end();
+		});
+	});
+
+var server = http.createServer(app).listen(port);
 
 
 //const childProcess = spawn('node', ['nytArchiveGET.js', '2019', '1']);
@@ -18,33 +32,33 @@ var log = function(entry) {
 //	var words = data.split(' ');
 //});
 
-var server = http.createServer(function (req, res) {
-	if (req.method === 'POST') {
-		var body = '';
-
-		req.on('data', function(chunk) {
-			body += chunk;
-		});
-
-		req.on('end', function() {
-			if (req.url === '/') {
-				log('Received message: ' + body);
-			} else if (req.url = '/scheduled') {
-				log('Received task ' + req.headers['x-aws-sqsd-taskname'] + ' scheduled at ' + req.headers['x-aws-sqsd-scheduled-at']);
-			}
-
-			res.writeHead(200, 'OK', {'Content-Type': 'text/plain'});
-			res.end();
-		});
-	} else {
-		res.writeHead(200);
-		html.then( function (data) {
-			res.write(data, function (error) {
-				res.end();
-			});
-		});
-	}
-});
+//var server = http.createServer(function (req, res) {
+//	if (req.method === 'POST') {
+//		var body = '';
+//
+//		req.on('data', function(chunk) {
+//			body += chunk;
+//		});
+//
+//		req.on('end', function() {
+//			if (req.url === '/') {
+//				log('Received message: ' + body);
+//			} else if (req.url = '/scheduled') {
+//				log('Received task ' + req.headers['x-aws-sqsd-taskname'] + ' scheduled at ' + req.headers['x-aws-sqsd-scheduled-at']);
+//			}
+//
+//			res.writeHead(200, 'OK', {'Content-Type': 'text/plain'});
+//			res.end();
+//		});
+//	} else {
+//		res.writeHead(200);
+//		html.then( function (data) {
+//			res.write(data, function (error) {
+//				res.end();
+//			});
+//		});
+//	}
+//});
 
 function renderHTML(data) {
 	try {
@@ -65,14 +79,15 @@ function getHTML(data) {
 }
 
 function callbackFailure(error) {
+	log(error);
 	throw error;
 }
 
 // Listen on port 3000, IP defaults to 127.0.0.1
-server.listen(port);
+//server.listen(port);
 
 // Put a friendly message on the terminal
-console.log('Server running at http://127.0.0.1:' + port + '/');
+log('Server running at http://127.0.0.1:' + port + '/');
 
 const connection = mysql.createConnection({
 	host	 : process.env.RDS_HOSTNAME,
@@ -83,26 +98,26 @@ const connection = mysql.createConnection({
 
 connection.connect(function(err) { //initialize db
 	if (err) {
-		console.error('Database connection failed: ' + err.stack);
+		log('Database connection failed: ' + err.stack);
 		return; 
 		}
-	console.log('Connected to mysql server.');
+	log('Connected to mysql server.');
 
 	var createDB = 'CREATE DATABASE nyt_webscraper_db';
 	connection.query(createDB, function (err, result) {
-		if (err) console.log('Database already created');
-		else console.log('Database created');
+		if (err) log('Database already created');
+		else log('Database created');
 	});
 	
 	var useDB = 'USE nyt_webscraper_db';
 	connection.query(useDB, function (err, result) {
 		if (err) throw err;
-		console.log('Database selected');
+		log('Database selected');
 	});
 	
 	var createTable = 'CREATE TABLE word_count (word VARCHAR(255), count INT(11))';
 	connection.query(createTable, function (err, result) {
-		if (err) console.log('Table already created');
-		else console.log('Table created');
+		if (err) log('Table already created');
+		else log('Table created');
 	});
 });

@@ -1,8 +1,7 @@
-const app = require('express')(),
-	chart = require('chart.js'),
+const chart = require('chart.js'),
 	cheerio = require('cheerio'),
+	express = require('express'),
 	fs = require('fs').promises,
-	ha = require('hasharray'),
 	http = require('http'),
 	connection = require('mysql').createConnection({
 		host	 : process.env.RDS_HOSTNAME,
@@ -19,8 +18,6 @@ const log = function(entry) {
 		console.log(error);
 	}
 };
-
-const html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
 
 const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 	connection.connect(function(err) { //initialize db
@@ -49,7 +46,7 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 		});
 		
 		resolve(function(params) { //return function used to insert into table
-			let query = 'INSERT INTO word_count (word, count) VALUES ? ON DUPLICATE KEY UPDATE';
+			var query = 'INSERT INTO word_count (word, count) VALUES ? ON DUPLICATE KEY UPDATE count=count+VALUES(count)';
 			connection.query(query, [params], (err, result) => {
 				if (err) log(err);
 				else log(result);
@@ -59,21 +56,43 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 	});
 });
 
+const app = express();
+const html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
 var port = process.env.PORT || 3000;
 
+app.use(express.static('public'));
+
 app.get('/', function (req, res) {
-	html.then( function (data) {
-		res.send(data);
-		res.end();
-		});
+	chartHTML('2019', '1')
+		.then(function(data) {
+			console.log('success');
+			log(data);
+			res.send(data);
+			res.end();
+			},
+			function(error) {
+			log(error);
+			throw error;
+			});
 	});
 
+//	html.then( function (data) {
+//		res.send(data);
+//		res.end();
+//		});
+//	});
+
 app.get('/nytArchive/:year/:month', function (req, res) {
-	chartHTML(req.params.year, req.params.month).then( function (data) {
+	chartHTML(req.params.year, req.params.month)
+	.then(function(data) {
 		res.send(data);
 		res.end();
-		});
+		},
+	function(error) {
+		log(error);
+		throw error;
 	});
+});
 
 var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
 log('Server running at http://127.0.0.1:' + port + '/');
@@ -90,36 +109,56 @@ function renderHTML(data) {
 
 async function chartHTML(year, month) {
 	try{
+		console.log('function called');
 		var childProcess = spawn('node', ['nytArchiveGET.js', year, month]);
 		var insertOrUpdateRow = await (insertOrUpdateRowPromise);
 		var data = await (fs.readFile('chart.html'));
 		var $ = cheerio.load(data);
+		console.log('ready to receive data');
 	} catch(err) {
 		log(error);
 		throw error;
 	}
 	var outputStream = childProcess.stdout;
 	outputStream.on('data', (data) => {
-		let words = data.split(' ');
+		console.log('data received');
+		data = data.toString();
+		log('articleBody received: ' + data);
+		log('END of articleBody');
+		try { 
+			var words = data.split(' ');
+		} catch(error) {
+			console.log(data);
+			throw error;
+		}
 		let wordcount = {};
 		words.forEach(function(word) { wordcount[word] = (wordcount[word] || 0) + 1 }); // create word:#ofTimesItIsInArray set
 		let params = Object.entries(wordcount);
 		insertOrUpdateRow(params);
 	});
-	outputStream.once('finish', () => {
-		connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 10', (err, result) => {
-			if (err) log(err);
-			else {
-				let rows = {};
-				result.forEach(function(row) { rows[row.word] = row.count; });
-				let words = Object.keys(rows);
-				let counts = Objects.values(rows);
-				$('#myChart').attr('data-words', JSON.stringify(words));
-				$('#myChart').attr('data-counts', JSON.stringify(counts));
-				return $.root().html();
-			}
+	var exitPromise = new Promise( (resolve, reject) => {
+		childProcess.once('exit', () => {
+			console.log('end called');
+			log('END called');
+			connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 10', (err, result) => {
+				if (err) {
+					log(err);
+					reject(err);
+				} else {
+					let rows = {};
+					result.forEach(function(row) { rows[row.word] = row.count; });
+					let words = Object.keys(rows);
+					let counts = Object.values(rows);
+					console.log('all data organized');
+					$('#myChart').attr('data-words', JSON.stringify(words));
+					$('#myChart').attr('data-counts', JSON.stringify(counts));
+					log($.root().html());
+					resolve($.root().html());
+					}
+				});
+			});
 		});
-	});
+	return exitPromise;
 }
 
 function renderErrorPage(error) {

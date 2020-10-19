@@ -6,7 +6,6 @@
     "chart.js": "latest",
     "cheerio": "latest",
     "express": "latest",
-    "hasharray": "^1.1.1",
     "mysql": "latest"
   },
   "description": "A web-scraping program written in node.js",

@@ -19,6 +19,22 @@ const log = function(entry) {
 	}
 };
 
+function resetTable() {
+	var dropTable = 'DROP TABLE IF EXISTS word_count';
+	connection.query(dropTable, function (err, result) {
+		if (err) {
+			throw err;
+		}
+	});
+	
+	var createTable = 'CREATE TABLE word_count (word VARCHAR(255) PRIMARY KEY, count INT(11))';
+	connection.query(createTable, function (err, result) {
+		if (err) {
+			throw err;
+		}
+	});
+}
+
 const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 	connection.connect(function(err) { //initialize db
 		if (err) {
@@ -39,12 +55,6 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 			log('Database selected');
 		});
 		
-		var createTable = 'CREATE TABLE IF NOT EXISTS word_count (word VARCHAR(255) PRIMARY KEY, count INT(11))';
-		connection.query(createTable, function (err, result) {
-			if (err) reject(err);
-			log('Table created or exists');
-		});
-		
 		resolve(function(params) { //return function used to insert into table
 			var query = 'INSERT INTO word_count (word, count) VALUES ? ON DUPLICATE KEY UPDATE count=count+VALUES(count)';
 			connection.query(query, [params], (err, result) => {
@@ -55,6 +65,9 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 		
 	});
 });
+
+
+
 
 const app = express();
 const html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
@@ -69,6 +82,7 @@ app.get('/', function (req, res) {
 			log(data);
 			res.send(data);
 			res.end();
+			setTimeout({}, 30000);
 			},
 			function(error) {
 			log(error);
@@ -111,6 +125,7 @@ async function chartHTML(year, month) {
 	try{
 		console.log('function called');
 		var childProcess = spawn('node', ['nytArchiveGET.js', year, month]);
+		resetTable();
 		var insertOrUpdateRow = await (insertOrUpdateRowPromise);
 		var data = await (fs.readFile('chart.html'));
 		var $ = cheerio.load(data);
@@ -150,6 +165,9 @@ async function chartHTML(year, month) {
 					let words = Object.keys(rows);
 					let counts = Object.values(rows);
 					console.log('all data organized');
+					
+					$('#myChart').attr('data-obj', JSON.stringify(result));
+					
 					$('#myChart').attr('data-words', JSON.stringify(words));
 					$('#myChart').attr('data-counts', JSON.stringify(counts));
 					log($.root().html());

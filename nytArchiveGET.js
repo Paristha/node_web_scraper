@@ -17,13 +17,15 @@ var param1value = 'M9ttHPRA6h5DX7shqsF12L3AOyzvqvtN';
 nytURL.searchParams.append(param1, param1value);
 log('archive api request: ' + nytURL.href);
 
+var sampling = parseInt(process.argv[4]);
+if (isNaN(sampling)) { sampling = 0; }
 var numArticlesRec = 0;
 
 axios
 .get(nytURL.href)
 .then((response) => {
 	log('archive data received');
-	getArchiveArticles(response.data.response.docs, process.stdout, 2)
+	getArchiveArticles(response.data.response.docs, process.stdout, sampling)
 	.then(function(success) {
 				process.stdout.end('');
 				log('articles received: ' + numArticlesRec);
@@ -45,7 +47,6 @@ axios
 function getArchiveArticles(docs, writer, numArticlesReq) {
 
 	var randomChoices = getRandomChoices(docs, numArticlesReq);
-	log('chosen doc: ' + JSON.stringify(randomChoices[0]));
 	var promiseArray = [];
 	var articlesPromise = new Promise( (resolve, reject) => {
 		for (i in randomChoices) {

@@ -70,65 +70,50 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 
 
 const app = express();
-const html = fs.readFile('index.html').then(renderHTML, renderErrorPage);
+const html = fs.readFile('test.html');
 var port = process.env.PORT || 3000;
+var htmldata = '';
 
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
-	chartHTML('2019', '1')
-		.then(function(data) {
-			console.log('success');
-			log(data);
-			res.send(data);
+	html.then(
+		function(data) {
+			htmldata = data.toString();
+			res.send(htmldata);
 			res.end();
-			setTimeout({}, 30000);
 			},
-			function(error) {
-			log(error);
-			throw error;
+		function(err) {
+			log(err);
+			throw err;
 			});
 	});
 
-//	html.then( function (data) {
-//		res.send(data);
-//		res.end();
-//		});
-//	});
-
-app.get('/nytArchive/:year/:month', function (req, res) {
-	chartHTML(req.params.year, req.params.month)
+app.get('/nytArchive/:year/:month/:sampling', function (req, res) {
+	chartHTML(req.params.year, req.params.month, req.params.sampling)
 	.then(function(data) {
+		console.log('success');
+		log(data);
 		res.send(data);
 		res.end();
+		setTimeout(() => {}, 30000);
 		},
-	function(error) {
+		function(error) {
 		log(error);
 		throw error;
+		});
 	});
-});
 
 var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
 log('Server running at http://127.0.0.1:' + port + '/');
 
-function renderHTML(data) {
-	try {
-		var $ = cheerio.load(data);
-		$('.textColumn').append('<p>This is podracing!</p>');
-		return $.root().html();
-	} catch (error) {
-		callbackFailure(error);
-	}
-}
-
-async function chartHTML(year, month) {
+async function chartHTML(year, month, sampling) {
 	try{
 		console.log('function called');
-		var childProcess = spawn('node', ['nytArchiveGET.js', year, month]);
+		var childProcess = spawn('node', ['nytArchiveGET.js', year, month, sampling]);
 		resetTable();
 		var insertOrUpdateRow = await (insertOrUpdateRowPromise);
-		var data = await (fs.readFile('chart.html'));
-		var $ = cheerio.load(data);
+		var $ = cheerio.load(htmldata);
 		console.log('ready to receive data');
 	} catch(err) {
 		log(error);
@@ -165,8 +150,6 @@ async function chartHTML(year, month) {
 					let words = Object.keys(rows);
 					let counts = Object.values(rows);
 					console.log('all data organized');
-					
-					$('#myChart').attr('data-obj', JSON.stringify(result));
 					
 					$('#myChart').attr('data-words', JSON.stringify(words));
 					$('#myChart').attr('data-counts', JSON.stringify(counts));

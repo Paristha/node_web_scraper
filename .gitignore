@@ -2,3 +2,4 @@
 *.zip
 .project
 node_modules
+test_scripts

@@ -3,11 +3,22 @@
   <head>
     <title>NYT Word Occurrence Grapher</title>
     <style>
-      body{
+      html, body, {
+        position:fixed;
+        overflow: hidden;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        margin: 0;
+      }
+      body {
+        display: flex;
         margin: 0px;
         padding: 0px;
+        height: 100%;
         background: #e74c3c;
-        font-family: 'Lato', sans-serif;
+        font-family: 'Georgia', serif;
       }
       .wrapper {
             width:300px;
@@ -154,40 +165,124 @@
           line-height: 1.6em;
       }
 
-      .textColumn, .linksColumn {
-        padding: 2em;
+      .split {
+        height: 100%;
+        width: 50%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        overflow-x: hidden;
       }
 
-      .textColumn {
+      /* Control the left side */
+      .left {
+        left: 0;
+      }
+
+      /* Control the right side */
+      .right {
+        right: 0;
+        background-color: white;
+      }
+
+      /* If you want the content centered horizontally and vertically */
+      .centered {
         position: absolute;
-        top: 0px;
-        right: 50%;
-        bottom: 0px;
-        left: 0px;
-
-        text-align: left;
-        padding-top: 11em;
-        background-color: #e74c3c;
-
-      }
-      .textColumn p {
-        width: 75%;
-        float:right;
-      }
-      .linksColumn {
-        position: absolute;
-        top:0px;
-        right: 0px;
-        bottom: 0px;
+        top: 50%;
         left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
 
-        background-color: #fff;
+      h1 {
+        color: #33342D;
+        font-size: 500%;
+        font-weight: normal;
+        margin-bottom: 0em;
       }
 
       h2 {
         font-size: 200%;
         font-weight: normal;
         margin-bottom: 0em;
+      }
+
+      .loader {
+        position: absolute;
+        width: 95%;
+        height: 100%;
+        color: rgba(0,0,0,.2);
+      }
+
+      #myChart {
+        display: none;
+      }
+
+      .loader span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
+      .loader span:nth-child(1) {
+        transform: rotate(0deg);
+      }
+      .loader span:nth-child(2) {
+        transform: rotate(90deg);
+      }
+      .loader span:nth-child(3) {
+        transform: rotate(180deg);
+      }
+      .loader span:nth-child(4) {
+        transform: rotate(270deg);
+      }
+      .loader span:before {
+        content: '';
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 10px;
+        background: #000;
+        transform: scaleX(0);
+        animation: animate 2s linear infinite;
+      }
+      .loader span:nth-child(1):before {
+        animation-delay: 0s;
+      }
+      .loader span:nth-child(2):before {
+        animation-delay: 0.5s;
+      }
+      .loader span:nth-child(3):before {
+        animation-delay: 1s;
+      }
+      .loader span:nth-child(4):before {
+        animation-delay: 1.5s;
+      }
+
+      @keyframes animate {
+        0%
+        {
+          transform: scaleX(0);
+          transform-origin: left;
+        }
+        25%
+        {
+          transform: scaleX(1);
+          transform-origin: left;
+        }
+        25.00001%
+        {
+          transform-origin: right;
+        }
+        50%, 100%
+        {
+          transform: scaleX(0);
+          transform-origin: right;
+        }
       }
 
     </style>
@@ -225,7 +320,7 @@
 
       });
     </script>
-    <div class="textColumn">
+    <div class="split left">
       <h1>Congratulations</h1>
       <div class="wrapper">
         <dl id="year-select" class="dropdown">
@@ -299,27 +394,35 @@
       <p>Your first AWS Elastic Beanstalk Node.js application is now running on your own dedicated environment in the AWS Cloud</p>
       <p>This environment is launched with Elastic Beanstalk Node.js Platform</p>
       <p id="buttonOutput"></p>
-      <button type="button" onclick="helloWorld()">Click</button>
+      <button type="button" onclick="runSearch()">Click</button>
       <script>
-        function helloWorld() { 
+        function runSearch() { 
+          $(".loader span").show();
+          $("button").hide();
+          $("#myChart").hide();
           var year = $("#year-select dt").text();
           var month = $("#month-select dt").text();
           var sampling = $("#sampling-select dt").text();
-          var hostname = window.location.hostname;
-          if (hostname === "localhost") { hostname = ""; }
-          var url = hostname + "/nytArchive/" + year + "/" + month + "/" + sampling;
+          var url = "/nytArchive/" + year + "/" + month + "/" + sampling;
           console.log(url);
           window.location.replace(url);
         }
       </script>
     </div>
 
-    <div class="linksColumn">
-      <h2>What's Next?</h2>
-      <ul>
-        <canvas id="myChart" width="400" height="400"></canvas>
-        <script src="/modules/chart.js/dist/Chart.js"></script>
-        <script>
+    <div class="split right">
+      <div class="loader">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <canvas id="myChart" width="100%" height="90%"></canvas>
+      </div>
+
+        
+      <script src="/modules/chart.js/dist/Chart.js"></script>
+      <script>
+        if ($('#myChart').css('display') === 'block') {
           var ctx = document.getElementById('myChart');
           var labels = $('#myChart').data('words');
           var data = $('#myChart').data('counts');
@@ -348,8 +451,9 @@
               }
             }
           });
-        </script>
-      </ul>
+        }
+      </script>
+
     </div>
 
   </body>

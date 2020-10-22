@@ -16,49 +16,50 @@ const log = function(entry) {
 		fs.appendFile('tmp/nyt_webscraper_sqlinput.log', new Date().toISOString() + ' - ' + entry + '\n');
 	} catch (error) {
 		console.log(error);
+		console.log(new Date().toISOString() + entry);
 	}
 };
 
 function resetTable() {
 	var dropTable = 'DROP TABLE IF EXISTS word_count';
-	connection.query(dropTable, function (err, result) {
-		if (err) {
-			throw err;
+	connection.query(dropTable, function (error, result) {
+		if (error) {
+			callbackFailure(error);
 		}
 	});
 	
 	var createTable = 'CREATE TABLE word_count (word VARCHAR(255) PRIMARY KEY, count INT(11))';
-	connection.query(createTable, function (err, result) {
-		if (err) {
-			throw err;
+	connection.query(createTable, function (error, result) {
+		if (error) {
+			callbackFailure(error);
 		}
 	});
 }
 
 const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
-	connection.connect(function(err) { //initialize db
-		if (err) {
-			log('Database connection failed: ' + err.stack);
-			reject(err); 
+	connection.connect(function(error) { //initialize db
+		if (error) {
+			log('Database connection failed: ' + error.stack);
+			reject(error); 
 			}
 		log('Connected to mysql server.');
 
 		var createDB = 'CREATE DATABASE IF NOT EXISTS nyt_webscraper_db';
-		connection.query(createDB, function (err, result) {
-			if (err) reject(err);
+		connection.query(createDB, function (error, result) {
+			if (error) reject(error);
 			log('Database created or exists');
 		});
 		
 		var useDB = 'USE nyt_webscraper_db';
-		connection.query(useDB, function (err, result) {
-			if (err) reject(err);
+		connection.query(useDB, function (error, result) {
+			if (error) reject(error);
 			log('Database selected');
 		});
 		
 		resolve(function(params) { //return function used to insert into table
 			var query = 'INSERT INTO word_count (word, count) VALUES ? ON DUPLICATE KEY UPDATE count=count+VALUES(count)';
-			connection.query(query, [params], (err, result) => {
-				if (err) log(err);
+			connection.query(query, [params], (error, result) => {
+				if (error) log(error);
 				else log(result);
 			});
 		});
@@ -70,7 +71,7 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 
 
 const app = express();
-const html = fs.readFile('test.html');
+const html = fs.readFile('app.html');
 var port = process.env.PORT || 3000;
 var htmldata = '';
 
@@ -83,25 +84,19 @@ app.get('/', function (req, res) {
 			res.send(htmldata);
 			res.end();
 			},
-		function(err) {
-			log(err);
-			throw err;
-			});
+		(error) => callbackFailure);
 	});
 
 app.get('/nytArchive/:year/:month/:sampling', function (req, res) {
+	log('req: ' + JSON.stringify(req.body));
 	chartHTML(req.params.year, req.params.month, req.params.sampling)
 	.then(function(data) {
 		console.log('success');
-		log(data);
 		res.send(data);
 		res.end();
 		setTimeout(() => {}, 30000);
 		},
-		function(error) {
-		log(error);
-		throw error;
-		});
+		(error) => callbackFailure);
 	});
 
 var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
@@ -115,9 +110,8 @@ async function chartHTML(year, month, sampling) {
 		var insertOrUpdateRow = await (insertOrUpdateRowPromise);
 		var $ = cheerio.load(htmldata);
 		console.log('ready to receive data');
-	} catch(err) {
-		log(error);
-		throw error;
+	} catch(error) {
+		callbackFailure(error)
 	}
 	var outputStream = childProcess.stdout;
 	outputStream.on('data', (data) => {
@@ -140,10 +134,9 @@ async function chartHTML(year, month, sampling) {
 		childProcess.once('exit', () => {
 			console.log('end called');
 			log('END called');
-			connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 10', (err, result) => {
-				if (err) {
-					log(err);
-					reject(err);
+			connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 10', (error, result) => {
+				if (error) {
+					callbackFailure(error);
 				} else {
 					let rows = {};
 					result.forEach(function(row) { rows[row.word] = row.count; });
@@ -153,21 +146,18 @@ async function chartHTML(year, month, sampling) {
 					
 					$('#myChart').attr('data-words', JSON.stringify(words));
 					$('#myChart').attr('data-counts', JSON.stringify(counts));
-					log($.root().html());
+					$("#myChart").css('display', 'block');
+					
+					$("#year-select dt a span span").text(year.toString());
+					$("#month-select dt a span span").text(month.toString());
+					$("#sampling-select dt a span span").text(sampling.toString());
+					
 					resolve($.root().html());
 					}
 				});
 			});
 		});
 	return exitPromise;
-}
-
-function renderErrorPage(error) {
-	return fs.readFile('error.html').then(getHTML, callbackFailure);
-}
-
-function getHTML(data) {
-	return data;
 }
 
 function callbackFailure(error) {

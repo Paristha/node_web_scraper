@@ -57,11 +57,11 @@ function getArchiveArticles(docs, writer, numArticlesReq) {
 				log('received data from: ' + randomChoices[index].web_url);
 				log(articleBody);
 				log('END of data from: ' + randomChoices[index].web_url);
-				numArticlesRec++;
 				if (!writer.write(articleBody)) {
 					writer.once('drain', () => {});
 				}
-				if (index == (promiseArray.length-1)) {
+				numArticlesRec++;
+				if (numArticlesRec == (numArticlesReq)) {
 					log('resolving Promise');
 					resolve(true);
 				}

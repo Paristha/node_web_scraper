@@ -17,146 +17,118 @@
         margin: 0px;
         padding: 0px;
         background: #e74c3c;
+        font-size: 14px;
         font-family: 'Georgia', serif;
       }
 
       .wrapper {
-            width:300px;
-            margin:3% auto;
+        width:300px;
+        margin:3% auto;
       }
       .dropdown dd {
-            display: block;
-            position: absolute;
-            left: 113%;
-            top: -2.8em;
+        display: block;
+        position: absolute;
+        left: 0%;
+        top: -0.8em;
       }
       .dropdown dd, .dropdown dt, .dropdown ul {
-            margin: 0px;
-            padding: 0px;
+        margin: 0px;
+        padding: 0px;
       }
       .dropdown dt a span {
-            cursor: pointer;
-            display: block;
-            padding: 5px;
-            white-space: nowrap;
-      }
-      .dropdown dt a img {
-            position: relative;
-            z-index: 1;
+        cursor: pointer;
+        display: block;
+        padding: 5px;
+        white-space: nowrap;
       }
       .dropdown dt a span span {
-            display: inline-block;
-            padding: 0;
+        display: inline-block;
+        padding: 0;
       }
-
       .dropdown dd {
-            position: relative;
+        position: relative;
       }
       .dropdown a, .dropdown a:visited {
-            color: #4a535f;
-            text-decoration: none;
-            outline: none;
+        color: #4a535f;
+        text-decoration: none;
+        outline: none;
       }
       .dropdown a:hover {
-            color: #5d4617;
+        color: #5d4617;
       }
       .dropdown dt a:hover, .dropdown dt a:focus {
-            color: #5d4617;
+        color: #5d4617;
       }
       .dropdown dt a {
-            position: relative;
-            background: #e3e6ef;
-            display: block;
-            padding-right: 20px;
-            overflow: hidden;
-            border:1px solid #ed4267;
-            width:250px;
+        position: relative;
+        background: #e3e6ef;
+        display: block;
+        padding-right: 20px;
+        overflow: hidden;
+        border:1px solid #ed4267;
+        width:250px;
       }
       .dropdown dt a:after {
-            content: '';
-            background: #ed4267;
-            position: absolute;
-            
-            height: 32px;
-          position: absolute;
-          right: 0;
-          top: 0;
-          width: 35px;
-      }
-      .dropdown dt a:before {
-          background: none repeat scroll 0 0 #FFFFFF;
-          content: "";
-          height: 3px;
-          position: absolute;
-          right: 7px;
-          top: 6px;
-          width: 20px;
-          z-index: 2;
-            box-shadow:0 8px 0 #FFFFFF, 0 16px 0 #FFFFFF;
+        content: '';
+        background: #ffc0cb;
+        position: absolute;
+        height: 32px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 35px;
       }
       .dropdown dd ul {
-            background: #f0f2f7;
-            
-            color: #C5C0B0;
-            display: none;
-            left: 0px;
-            padding: 5px 0px;
-            position: absolute;
-            
-            width: 270px;
-            border:1px solid #ed4267;
-            list-style: none;
-            max-height: 170px;
-            overflow-y: scroll;
-            top:10px;
-            z-index: 2;
+        background: #f0f2f7;
+        color: #C5C0B0;
+        display: none;
+        left: 0px;
+        padding: 5px 0px;
+        position: absolute;
+        width: 270px;
+        border:1px solid #ed4267;
+        list-style: none;
+        max-height: 170px;
+        overflow-y: scroll;
+        top:10px;
+        z-index: 2;
       }
       li a {
-            font-size:13px;
+        font-size:13px;
       }
       li a span {
-          line-height: 2em;
-      }
-      .dropdown dd ul::-webkit-scrollbar-track {
-       -webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.3);
-       border-left:1px solid rgba(0,0,0,0.1);
-      }
-      .dropdown dd ul::-webkit-scrollbar-thumb {
-       background: rgba(0,0,0,0.4);
-      }
-      .dropdown dd ul::-webkit-scrollbar-thumb:window-inactive {
-       background: blue;
+        line-height: 2em;
       }
       .dropdown span.value {
-            display: none;
+        display: none;
       }
       .dropdown dd ul li a {
-            padding: 5px;
-            display: block;
-            font-size: 12px !important;
+        padding: 5px;
+        display: block;
+        font-size: 12px !important;
       }
       .dropdown dd ul li a:hover {
-            background-color: rgba(0,0,0,0.05);
+        background-color: rgba(0,0,0,0.05);
       }
       dl.dropdown {
-            display: inline-block;
-            width: 240px;
-            margin: -3px 0 0 1px;
+        display: inline-block;
+        width: 240px;
+        margin: -3px 0 0 1px;
       }
       dl.dropdown > span {
-            overflow: hidden;
-            white-space: nowrap;
-            display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-block;
       }
       dl.dropdown dt span {
-            color: rgba(0, 0, 0, 0.6);
-          font-size: 14px;
-          font-weight: bold;
-          line-height: 1.6em;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 1.6em;
       }
 
       .split {
-        height: 90%;
+        height: 100%;
         position: fixed;
         z-index: 1;
         top: 0;
@@ -167,6 +139,7 @@
       .left {
         left: 0;
         width: 30%;
+        text-align: center
       }
 
       .right {
@@ -214,12 +187,22 @@
         100% { transform: rotate(360deg); }
       }
 
+      h1 {
+        font-size: 25px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+
+      .switch {
+        display: none;
+      }
+
     </style>
   </head>
   <body>
     <script src="/modules/JQuery/src/jquery-3.5.1.js"></script>
     <script>
-
       $(document).ready(function() {
 
           $(".dropdown dt a").click(function() {
@@ -250,6 +233,9 @@
       });
     </script>
     <div class="split left">
+      <h1>NYT Word-Occurrence App</h1>
+      <h2>© Thana Paris 2020</h2>
+      <h2>Email: tmp2121@caa.columbia.edu</h2>
       <div class="wrapper">
         <dl id="year-select" class="dropdown">
             <dt><a href="javascript:void(0);"><span><span>2019</span></span></a></dt>
@@ -304,7 +290,9 @@
         </dl>
       </div>
       <label><input id="wordExclusion" type="checkbox" />Exclude common words.</label>
-      <label><input type="file" name="wordExclusionList" onchange="saveList(this)"/>Upload your own word-exclusion list. Must be a .csv file with 1 column.</label>
+      <p>Upload your own word-exclusion list:</p>
+      <label><input type="file" name="wordExclusionList" onchange="saveList(this)"></label>
+      <p>Must be a .csv file with 1 column.</p>
       <script>
         async function saveList(inp) 
         {
@@ -331,6 +319,7 @@
       <button type="button" class="search" onclick="runSearch()">Run Program</button>
       <script>
         function runSearch() { 
+          $('.switch').hide();
           $(".loader").show();
           $(".search").hide();
           $("#occurrence").hide();
@@ -347,18 +336,21 @@
           window.location.replace(url);
         }
       </script>
-      <button type="button" class="switch" onclick="switchCharts()">Switch Charts</button>
+      <button type="button" class="switch" onclick="switchCharts()">Log-Log Graph</button>
       <script>
         function switchCharts() {
           if ($('#occurrence').css('display') === 'block') {
+            $('.switch').html('Word-Occurrence Graph');
             $('#occurrence').hide();
             $('#zipf').show();
           } else {
+            $('.switch').html('Log-Log Graph');
             $('#zipf').hide();
             $('#occurrence').show();
           }
         }
       </script>
+      <h2>Project explanation on the Github page <a href="https://github.com/Paristha/node_web_scraper">here</a></h2>
     </div>
 
     <div class="split right">
@@ -368,7 +360,8 @@
           <canvas class="chart" id="zipf" width="90%" height="60%" style="position: absolute; left: 8%; top: 8%;"></canvas>
           <script src="/modules/chart.js/dist/Chart.js"></script>
           <script>
-            if ($('#occurrence').css('display') === 'block') {
+            if ($('#occurrence').css('display') === 'block' || $('#zipf').css('display') === 'block') {
+              $('.switch').css('display', 'inline-block');
 
               var ctx = document.getElementById('occurrence');
               var labels = $('#occurrence').data('words');

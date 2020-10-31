@@ -5,7 +5,9 @@
     "axios": "latest",
     "chart.js": "latest",
     "cheerio": "latest",
+    "csv-parse": "latest",
     "express": "latest",
+    "multer": "latest",
     "mysql": "latest"
   },
   "description": "A web-scraping program written in node.js",

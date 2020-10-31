@@ -20,6 +20,9 @@ const log = function(entry) {
 	}
 };
 
+var exclusionList = [];
+const localList = fs.readFile('exclusion_list.csv');
+
 function resetTable() {
 	var dropTable = 'DROP TABLE IF EXISTS word_count';
 	connection.query(dropTable, function (error, result) {
@@ -88,8 +91,7 @@ app.get('/', function (req, res) {
 	});
 
 app.get('/nytArchive/:year/:month/:sampling', function (req, res) {
-	log('req: ' + JSON.stringify(req.body));
-	chartHTML(req.params.year, req.params.month, req.params.sampling)
+	chartHTML(req.params.year, req.params.month, req.params.sampling, false)
 	.then(function(data) {
 		console.log('success');
 		res.send(data);
@@ -99,10 +101,60 @@ app.get('/nytArchive/:year/:month/:sampling', function (req, res) {
 		(error) => callbackFailure);
 	});
 
+app.get('/nytArchiveExc/:year/:month/:sampling', function (req, res) {
+	if (exclusionList.length == 0) {
+		populateList();
+	}
+	chartHTML(req.params.year, req.params.month, req.params.sampling, true)
+	.then(function(data) {
+		console.log('success');
+		res.send(data);
+		res.end();
+		setTimeout(() => {}, 30000);
+		},
+		(error) => callbackFailure);
+	});
+
+const multer = require('multer');
+var storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+const stream = require('stream');
+var parse = require('csv-parse');
+
+
+app.post('/wordExclusionList', upload.single('list'), (req, res) => {
+	console.log(req.body.wordExclusion);
+	var readable = new stream.Readable();
+	var csvData=[];
+	readable._read = ( () => {
+		readable.push(req.file.buffer); 
+		readable.push(null);
+		});
+	readable.pipe(parse({bom: true})).on('data', function(csvrow) {
+		csvData.push(csvrow[0].trim());  
+	}).on('end',function() {
+		console.log(csvData);
+		exclusionList = csvData;
+		});
+	
+	res.sendStatus(200);
+	});
+
 var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
 log('Server running at http://127.0.0.1:' + port + '/');
 
-async function chartHTML(year, month, sampling) {
+function populateList() {
+	localList.then(
+		function(data) {
+			exclusionList = data.toString().split('\n');
+			for (i in exclusionList) {
+				exclusionList[i] = exclusionList[i].trim(); //in case of \r\n or other shenanigans
+				}
+			},
+		(error) => callbackFailure);
+}
+
+async function chartHTML(year, month, sampling, excl) {
 	try{
 		console.log('function called');
 		var childProcess = spawn('node', ['nytArchiveGET.js', year, month, sampling]);
@@ -126,7 +178,15 @@ async function chartHTML(year, month, sampling) {
 			throw error;
 		}
 		let wordcount = {};
-		words.forEach(function(word) { wordcount[word] = (wordcount[word] || 0) + 1 }); // create word:#ofTimesItIsInArray set
+		words.forEach(function(word) { // create word:#ofOccurrences set
+			if (excl) { //exclude common words option
+				if (!exclusionList.includes(word)) {
+					wordcount[word] = (wordcount[word] || 0) + 1 
+					}
+			} else {
+					wordcount[word] = (wordcount[word] || 0) + 1 
+				}
+			});
 		let params = Object.entries(wordcount);
 		insertOrUpdateRow(params);
 	});
@@ -134,19 +194,30 @@ async function chartHTML(year, month, sampling) {
 		childProcess.once('exit', () => {
 			console.log('end called');
 			log('END called');
-			connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 10', (error, result) => {
+//			connection.query('SELECT COUNT(*) FROM word_count', (error, result) => {
+//				if (error) {
+//					callbackFailure(error)
+//				} else {
+//					console.log('result:');
+//					console.log(result[0]['COUNT(*)']);
+//				}
+//			});
+			connection.query('SELECT * FROM word_count ORDER BY count DESC LIMIT 25', (error, result) => {
 				if (error) {
 					callbackFailure(error);
 				} else {
 					let rows = {};
 					result.forEach(function(row) { rows[row.word] = row.count; });
+					if (rows.length == 0) {
+						reject('Article had no body.'); //Some articles are images with captions and no body.
+					}
 					let words = Object.keys(rows);
 					let counts = Object.values(rows);
 					console.log('all data organized');
 					
-					$('#myChart').attr('data-words', JSON.stringify(words));
-					$('#myChart').attr('data-counts', JSON.stringify(counts));
-					$("#myChart").css('display', 'block');
+					$('#occurrence').attr('data-words', JSON.stringify(words));
+					$('#occurrence').attr('data-counts', JSON.stringify(counts));
+					$("#occurrence").css('display', 'block');
 					
 					$("#year-select dt a span span").text(year.toString());
 					$("#month-select dt a span span").text(month.toString());

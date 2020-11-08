@@ -202,4 +202,4 @@ Project Link: [https://github.com/Paristha/node_web_scraper](https://github.com/
 [license-url]: https://github.com/Paristha/node_web_scraper/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/thanaparis
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper.PNG?raw=true

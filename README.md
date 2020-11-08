@@ -41,7 +41,7 @@
   <h3 align="center">New York Times Word-Occurrence Grapher</h3>
 
   <p align="center">
-    This project aims to use the [NYT Developer's API](https://developer.nytimes.com/) to gather word-occurrence data from past years and graph it to demonstrate [Zipf's Law](https://en.wikipedia.org/wiki/Zipf%27s_law).
+    This project aims to use the <a href="https://developer.nytimes.com/">NYT Developer's API</a> to gather word-occurrence data from past years and graph it to demonstrate <a href="https://en.wikipedia.org/wiki/Zipf%27s_law">Zipf's Law</a>
     <br />
     <a href="https://github.com/Paristha/node_web_scraper"><strong>Explore the docs »</strong></a>
     <br />

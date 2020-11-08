@@ -22,12 +22,12 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][https://github.com/Paristha/node_web_scraper/graphs/contributors]
-[![Forks][forks-shield]][https://github.com/Paristha/node_web_scraper/forks]
-[![Stargazers][stars-shield]][https://github.com/Paristha/node_web_scraper/stargazers]
-[![Issues][issues-shield]][https://github.com/Paristha/node_web_scraper/issues]
-[![MIT License][license-shield]][https://opensource.org/licenses/MIT]
-[![LinkedIn][linkedin-shield]][https://www.linkedin.com/in/thanaparis/]
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
 
 
@@ -128,9 +128,16 @@ npm install
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+The three dropdown lists control the year, month, and sampling in that order from top to bottom.
+Years from 2009-2019 are included. The Times changed the layout of their articles at some point before 2009, and articles before 2002 are archived. 2009 was chosen as a semi-random cutoff point to ensure reliability.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+The sampling offers three options: 10, 50, and 100. When common words are being excluded, 10 does not ensure good results. Originally 1 and 5 were options, however there is a chance an article without words (a slideshow) is picked, so 10 was picked as a minimum for providing a reasonable corpus.
+
+The [default word exclusion list](https://github.com/Paristha/node_web_scraper/blob/master/exclusion_list.csv) is the most common 150 words as found [here](https://en.wikipedia.org/wiki/Most_common_words_in_English). Custom word exclusion lists should follow the same format.
+
+The Word-Occurrence bar graph uses the words as labels, for the Log-Log scatter plot you can see the word by scrolling over the point. The natural log is used; any log would function the same. The scatter plot should show a downwards linear trend, demonstrating Zipf's Law.
+
+
 
 
 
@@ -183,16 +190,16 @@ Project Link: [https://github.com/Paristha/node_web_scraper](https://github.com/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Paristha/repo.svg?style=flat-square
-[contributors-url]: https://github.com/Paristha/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Paristha/repo.svg?style=flat-square
-[forks-url]: https://github.com/Paristha/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/Paristha/repo.svg?style=flat-square
-[stars-url]: https://github.com/Paristha/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Paristha/repo.svg?style=flat-square
-[issues-url]: https://github.com/Paristha/repo/issues
-[license-shield]: https://img.shields.io/github/license/Paristha/repo.svg?style=flat-square
-[license-url]: https://github.com/Paristha/repo/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/Paristha/node_web_scraper.svg?style=flat-square
+[contributors-url]: https://github.com/Paristha/node_web_scraper/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Paristha/node_web_scraper.svg?style=flat-square
+[forks-url]: https://github.com/Paristha/node_web_scraper/network/members
+[stars-shield]: https://img.shields.io/github/stars/Paristha/node_web_scraper.svg?style=flat-square
+[stars-url]: https://github.com/Paristha/node_web_scraper/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Paristha/node_web_scraper.svg?style=flat-square
+[issues-url]: https://github.com/Paristha/node_web_scraper/issues
+[license-shield]: https://img.shields.io/github/license/Paristha/node_web_scraper.svg?style=flat-square
+[license-url]: https://github.com/Paristha/node_web_scraper/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/Paristha
+[linkedin-url]: https://linkedin.com/in/thanaparis
 [product-screenshot]: images/screenshot.png

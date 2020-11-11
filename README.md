@@ -75,10 +75,6 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://tinyurl.com/timeswordgrapher/)
 
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`Paristha`, `node_web_scraper`, `twitter_handle`, `tmp2121@caa.columbia.edu`
-
 
 ### Built With
 

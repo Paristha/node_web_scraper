@@ -71,8 +71,6 @@ const insertOrUpdateRowPromise = new Promise((resolve, reject) => {
 });
 
 
-
-
 const app = express();
 const html = fs.readFile('app.html');
 var port = process.env.PORT || 3000;
@@ -90,29 +88,27 @@ app.get('/', function (req, res) {
 		(error) => callbackFailure);
 	});
 
-app.get('/nytArchive/:year/:month/:sampling', function (req, res) {
-	chartHTML(req.params.year, req.params.month, req.params.sampling, false)
-	.then(function(data) {
-		console.log('success');
-		res.send(data);
+app.get('/nytArchive/:year/:month/:sampling', async function (req, res, next) {
+	chart_page = await chartHTML(req.params.year, req.params.month, req.params.sampling, false).then().catch((error) => {
+		var $ = cheerio.load(htmldata);
+		$("#error").text(error.stack);
+		res.send($.root().html());
 		res.end();
-		setTimeout(() => {}, 30000);
-		},
-		(error) => callbackFailure);
+		});
+	res.send(chart_page);
 	});
 
-app.get('/nytArchiveExc/:year/:month/:sampling', function (req, res) {
+app.get('/nytArchiveExc/:year/:month/:sampling', async function (req, res, next) {
 	if (exclusionList.length == 0) {
 		populateList();
 	}
-	chartHTML(req.params.year, req.params.month, req.params.sampling, true)
-	.then(function(data) {
-		console.log('success');
-		res.send(data);
+	chart_page = await chartHTML(req.params.year, req.params.month, req.params.sampling, true).then().catch((error) => {
+		var $ = cheerio.load(htmldata);
+		$("#error").text(error.stack);
+		res.send($.root().html());
 		res.end();
-		setTimeout(() => {}, 30000);
-		},
-		(error) => callbackFailure);
+		});;
+	res.send(chart_page);
 	});
 
 const multer = require('multer');
@@ -120,7 +116,6 @@ var storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const stream = require('stream');
 var parse = require('csv-parse');
-
 
 app.post('/wordExclusionList', upload.single('list'), (req, res) => {
 	console.log(req.body.wordExclusion);
@@ -140,7 +135,7 @@ app.post('/wordExclusionList', upload.single('list'), (req, res) => {
 	res.sendStatus(200);
 	});
 
-var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
+app.listen(3000); // Listen on port 3000, IP defaults to 127.0.0.1
 log('Server running at http://127.0.0.1:' + port + '/');
 
 function populateList() {
@@ -154,17 +149,36 @@ function populateList() {
 		(error) => callbackFailure);
 }
 
+function checkInput(year, month, sampling) {
+	if (year % 1 > 0 || month % 1 > 0 || sampling % 1 > 0) {
+		throw new Error("Invalid input: not a whole number");
+	}
+	if (year < 2009 || year > 2019) {
+		throw new Error("Invalid input: year not within bounds");
+	}
+	if (month < 1 || month > 12) {
+		throw new Error("Invalid input: month not within bounds");
+	}
+	if (sampling < 1 || sampling > 100) {
+		throw new Error("Invalid input: # of articles not within bounds");
+	}
+}
+
 async function chartHTML(year, month, sampling, excl) {
-	try{
+	try {
+		checkInput(year, month, sampling);
+	
 		console.log('function called');
 		var childProcess = spawn('node', ['nytArchiveGET.js', year, month, sampling]);
 		resetTable();
 		var insertOrUpdateRow = await (insertOrUpdateRowPromise);
 		var $ = cheerio.load(htmldata);
 		console.log('ready to receive data');
-	} catch(error) {
-		callbackFailure(error)
 	}
+	catch(error) {
+		callbackFailure(error);
+	}
+	
 	var outputStream = childProcess.stdout;
 	outputStream.on('data', (data) => {
 		console.log('data received');

@@ -17,7 +17,7 @@
         margin: 0px;
         padding: 0px;
         background: #e74c3c;
-        font-size: 14px;
+        font-size: 16px;
         font-family: 'Georgia', serif;
       }
 
@@ -25,10 +25,11 @@
         width:300px;
         margin:3% auto;
       }
+
       .dropdown dd {
         display: block;
         position: absolute;
-        left: 0%;
+
         top: -0.8em;
       }
       .dropdown dd, .dropdown dt, .dropdown ul {
@@ -69,14 +70,32 @@
         width:250px;
       }
       .dropdown dt a:after {
-        content: '';
+
         background: #ffc0cb;
         position: absolute;
         height: 32px;
         position: absolute;
         right: 0;
         top: 0;
-        width: 35px;
+        padding: 5px;
+      }
+      .dropdown dt .year-select:after {
+        content: 'Year';
+        font-size: 22px;
+        font-family: 'Georgia', serif;
+        color: black;
+      }
+      .dropdown dt .month-select:after {
+        content: 'Month';
+        font-size: 22px;
+        font-family: 'Georgia', serif;
+        color: black;
+      }
+      .dropdown dt .sampling-select:after {
+        content: '# of Articles';
+        font-size: 22px;
+        font-family: 'Georgia', serif;
+        color: black;
       }
       .dropdown dd ul {
         background: #f0f2f7;
@@ -137,9 +156,9 @@
 
       /* Control the left side */
       .left {
-        left: 0;
-        width: 30%;
-        text-align: center
+        left: 1%;
+        width: 28%;
+        text-align: left
       }
 
       .right {
@@ -188,14 +207,27 @@
       }
 
       h1 {
+        text-align: center;
         font-size: 25px;
       }
       h2 {
-        font-size: 20px;
+        text-align: center;
+        font-size: 18px;
+      }
+      h3 {
+        font-size: 10px;
       }
 
       .switch {
         display: none;
+      }
+
+      .search {
+        margin:0 auto;
+        display:block;
+        font-size: 16px;
+        font-family: 'Georgia', serif;
+        color: black;
       }
 
     </style>
@@ -233,12 +265,14 @@
       });
     </script>
     <div class="split left">
-      <h1>NYT Word-Occurrence App</h1>
+      <h1>NYT</h1>
+      <h1> Word Occurrence</h1>
+      <h2>tmp2121@caa.columbia.edu</h2>
       <h2>© Thana Paris 2020</h2>
-      <h2>Email: tmp2121@caa.columbia.edu</h2>
+      <button type="button" class="search" onclick="runSearch()">Run Program</button>
       <div class="wrapper">
         <dl id="year-select" class="dropdown">
-            <dt><a href="javascript:void(0);"><span><span>2019</span></span></a></dt>
+            <dt><a href="javascript:void(0);" class="year-select"><span><span>2019</span></span></a></dt>
             <dd>
               <ul style="display: none;">
                 <li><a href="javascript:void(0);"><span>2019</span></a></li>
@@ -258,7 +292,7 @@
       </div>
       <div class="wrapper">
         <dl id="month-select" class="dropdown">
-            <dt><a href="javascript:void(0);"><span><span>1</span></span></a></dt>
+            <dt><a href="javascript:void(0);" class="month-select"><span><span>1</span></span></a></dt>
             <dd>
               <ul style="display: none;">
                 <li><a href="javascript:void(0);"><span>1</span></a></li>
@@ -279,7 +313,7 @@
       </div>
       <div class="wrapper">
         <dl id="sampling-select" class="dropdown">
-            <dt><a href="javascript:void(0);"><span><span>10</span></span></a></dt>
+            <dt><a href="javascript:void(0);" class="sampling-select"><span><span>10</span></span></a></dt>
             <dd>
               <ul style="display: none;">
                 <li><a href="javascript:void(0);"><span>10</span></a></li>
@@ -291,8 +325,9 @@
       </div>
       <label><input id="wordExclusion" type="checkbox" />Exclude common words.</label>
       <p>Upload your own word-exclusion list:</p>
+      <p>(Must be a .csv file with 1 column.)</p>
       <label><input type="file" name="wordExclusionList" onchange="saveList(this)"></label>
-      <p>Must be a .csv file with 1 column.</p>
+      
       <script>
         async function saveList(inp) 
         {
@@ -316,7 +351,7 @@
           
         }
       </script>
-      <button type="button" class="search" onclick="runSearch()">Run Program</button>
+
       <script>
         function runSearch() { 
           $('.switch').hide();
@@ -350,11 +385,13 @@
           }
         }
       </script>
-      <h2>Project explanation on the Github page <a href="https://github.com/Paristha/node_web_scraper">here</a></h2>
+      <h1><a href="https://github.com/Paristha/node_web_scraper">Github</a></h1>
+
     </div>
 
     <div class="split right">
       <div class="right-wr">
+        <h3 id="error"></h3>
         <div class="chart-wr">
           <canvas class="chart" id="occurrence" width="90%" height="60%" style="position: absolute; left: 8%; top:8%;"></canvas>
           <canvas class="chart" id="zipf" width="90%" height="60%" style="position: absolute; left: 8%; top: 8%;"></canvas>

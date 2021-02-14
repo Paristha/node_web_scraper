@@ -135,7 +135,7 @@ app.post('/wordExclusionList', upload.single('list'), (req, res) => {
 	res.sendStatus(200);
 	});
 
-app.listen(3000); // Listen on port 3000, IP defaults to 127.0.0.1
+var server = http.createServer(app).listen(port); // Listen on port 3000, IP defaults to 127.0.0.1
 log('Server running at http://127.0.0.1:' + port + '/');
 
 function populateList() {

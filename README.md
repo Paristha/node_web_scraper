@@ -132,14 +132,20 @@ The [default word exclusion list](https://github.com/Paristha/node_web_scraper/b
 
 The Word-Occurrence bar graph uses the words as labels, for the Log-Log scatter plot you can see the word by scrolling over the point. The natural log is used; any log would function the same. The scatter plot should show a downwards linear trend, demonstrating Zipf's Law.
 
+Example graphs (taken from 10-2016, 100 articles sampled, excluding common words):
+[![Word Occurrence Graph][wcgraph-screenshot]]
+[![Zipf's Law Graph][zlgraph-screenshot]]
 
 
-
+N.B.: The example word-exclusion list is not exhaustive. 'Common' words can be seen here still. Future updates may include better common word lists, but the ability to tailor your own to your needs should suffice.
 
 ROADMAP
 ## Roadmap
 
-No new features currently planned. Feel free to email me suggestions!
+-Improved common word list
+-Ability to download MySQL db created to store data for graph
+
+Feel free to email me suggestions!
 
 See the [open issues](https://github.com/Paristha/node_web_scraper/issues) for a list of proposed features (and known issues).
 
@@ -200,3 +206,5 @@ Project Link: [https://github.com/Paristha/node_web_scraper](https://github.com/
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/thanaparis
 [product-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper.PNG?raw=true
+[wcgraph-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper_word-occurrence_graph.PNG?raw=true
+[zlgraph-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper_zipf_graph.PNG?raw=true

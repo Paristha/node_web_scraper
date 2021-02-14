@@ -139,7 +139,7 @@ Example graphs (taken from 10-2016, 100 articles sampled, excluding common words
 
 N.B.: The example word-exclusion list is not exhaustive. 'Common' words can be seen here still. Future updates may include better common word lists, but the ability to tailor your own to your needs should suffice.
 
-ROADMAP
+<!-- ROADMAP -->
 ## Roadmap
 
 -Improved common word list

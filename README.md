@@ -205,6 +205,6 @@ Project Link: [https://github.com/Paristha/node_web_scraper](https://github.com/
 [license-url]: https://github.com/Paristha/node_web_scraper/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/thanaparis
-[product-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper.PNG?raw=true
-[wcgraph-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper_word-occurrence_graph.PNG?raw=true
-[zlgraph-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper_zipf_graph.PNG?raw=true
+[product-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper.png?raw=true
+[wcgraph-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper_word-occurrence_graph.png?raw=true
+[zlgraph-screenshot]: https://github.com/Paristha/node_web_scraper/blob/master/node_web_scraper_zipf_graph.png?raw=true

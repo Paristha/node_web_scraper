@@ -38,7 +38,7 @@
   <h3 align="center">New York Times Word-Occurrence Grapher</h3>
 
   <p align="center">
-    This project aims to use the <a href="https://developer.nytimes.com/">NYT Developer's API</a> to gather word-occurrence data from past years and graph it to demonstrate <a href="https://en.wikipedia.org/wiki/Zipf%27s_law">Zipf's Law</a>
+    This project aims to use the <a href="https://developer.nytimes.com/">NYT Developer's APIs</a> to gather word-occurrence data from past years and graph it to demonstrate <a href="https://en.wikipedia.org/wiki/Zipf%27s_law">Zipf's Law</a>
     <br />
     <a href="https://github.com/Paristha/node_web_scraper"><strong>Explore the docs »</strong></a>
     <br />
@@ -62,7 +62,7 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Usage](#usage)
-<!-- * [Roadmap](#roadmap) -->
+* [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
@@ -122,9 +122,11 @@ npm install
 ## Usage
 
 The three dropdown lists control the year, month, and sampling in that order from top to bottom.
-Years from 2009-2019 are included. The Times changed the layout of their articles at some point before 2009, and articles before 2002 are archived. 2009 was chosen as a semi-random cutoff point to ensure reliability.
+Years from 2009-2019 are included. The Times changed the layout of their articles at some point before 2009, and articles before 2002 are archived. 2009 was chosen as a cutoff point to ensure reliability.
 
 The sampling offers three options: 10, 50, and 100. When common words are being excluded, 10 does not ensure good results. Originally 1 and 5 were options, however there is a chance an article without words (a slideshow) is picked, so 10 was picked as a minimum for providing a reasonable corpus.
+
+The app functions by making a call to the [New York Times Archive API](https://developer.nytimes.com/docs/archive-product/1/overview) with the chosen month and year. This returns a json with information on every NYT article from that year. A sampling of these is taken using Math.random() to retrieve as many article URLs as requested, which are then visited. The text of the articles is extracted by taking all inner html from elements with the name 'articleBody'. The text is split into word counts and used to update a MySQL database with a column for 'word' (which is a string and the key) and a column for 'word-count' (which is a number). After all articles are visited, the top 50 rows of the database, descending on 'word-count', are extracted and inserted into the html so that they may be used to render the chart when the webpage is loaded.
 
 The [default word exclusion list](https://github.com/Paristha/node_web_scraper/blob/master/exclusion_list.csv) is the most common 150 words as found [here](https://en.wikipedia.org/wiki/Most_common_words_in_English). Custom word exclusion lists should follow the same format.
 
@@ -134,10 +136,12 @@ The Word-Occurrence bar graph uses the words as labels, for the Log-Log scatter 
 
 
 
-<!-- ROADMAP
+ROADMAP
 ## Roadmap
 
-See the [open issues](https://github.com/Paristha/node_web_scraper/issues) for a list of proposed features (and known issues). -->
+No new features currently planned. Feel free to email me suggestions!
+
+See the [open issues](https://github.com/Paristha/node_web_scraper/issues) for a list of proposed features (and known issues).
 
 
 

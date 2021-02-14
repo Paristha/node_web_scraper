@@ -133,8 +133,8 @@ The [default word exclusion list](https://github.com/Paristha/node_web_scraper/b
 The Word-Occurrence bar graph uses the words as labels, for the Log-Log scatter plot you can see the word by scrolling over the point. The natural log is used; any log would function the same. The scatter plot should show a downwards linear trend, demonstrating Zipf's Law.
 
 Example graphs (taken from 10-2016, 100 articles sampled, excluding common words):
-[![Word Occurrence Graph][wcgraph-screenshot]]
-[![Zipf's Law Graph][zlgraph-screenshot]]
+![Word Occurrence Graph][wcgraph-screenshot]
+![Zipf's Law Graph][zlgraph-screenshot]
 
 
 N.B.: The example word-exclusion list is not exhaustive. 'Common' words can be seen here still. Future updates may include better common word lists, but the ability to tailor your own to your needs should suffice.
